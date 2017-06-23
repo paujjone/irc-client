@@ -229,9 +229,14 @@ class ClientGUI(tk.Tk):
         }
         if msg.startswith('/'):
             cmdw = str(msg.split(' ', 1)[0])
-            cmd = commands[cmdw]
-            cmdw = cmdw + " "
-            msg = msg.replace(cmdw,'')
+            if cmdw not in commands:
+                self._msg_queue.append('   *** UNFORTUNATELY YOUR COMMAND: "'+cmdw+'" IS NOT SUPPORTED... Commands include: /me /msg /join and /part')
+                cmd = 0
+                msg = '**/*&!ERROR!&*/**'
+            else:
+                cmd = commands[cmdw]
+                cmdw = cmdw + " "
+                msg = msg.replace(cmdw,'')
             return msg, cmd
         else:
             return msg, 0
@@ -241,8 +246,9 @@ class ClientGUI(tk.Tk):
         entry = event.widget
         msg = entry.get()
         msg,cmd = self._command_check(msg)
-        self._core.send_to_channel(msg,cmd)
-        entry.delete(0, 'end')
+        if msg != '**/*&!ERROR!&*/**':
+            self._core.send_to_channel(msg,cmd)
+            entry.delete(0, 'end')
 
     def _on_control_a(self, event):
         """Select all in the entry."""
